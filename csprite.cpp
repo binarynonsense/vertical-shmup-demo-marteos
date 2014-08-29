@@ -62,7 +62,7 @@ void CSprite :: checkForMovement ()
     
 }
 
-void CSprite :: draw (unsigned char *buffer, int screenWidth)
+void CSprite :: draw (unsigned char *buffer, int screenWidth, float deltaTime)
 { 
     int x = getPosX();
     int y = getPosY();

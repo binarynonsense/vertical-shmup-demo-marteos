@@ -30,11 +30,12 @@ CEnemySimple :: CEnemySimple(int nFrames, int nExplosionFrames) : CShip(nFrames,
 {
 }
 
-void CEnemySimple :: move(int pixels, int screenWidth, int screenHeight)
+void CEnemySimple :: move(float distance, int screenWidth, int screenHeight)
 {
     if (direction == RIGHT) 
     {
-        setPosX(getPosX() + pixels);
+        setPosX(getPosX() + distance);
+        
         if (getPosX() > screenWidth - frames[actualFrame].width)
         {
             direction = LEFT;
@@ -42,7 +43,8 @@ void CEnemySimple :: move(int pixels, int screenWidth, int screenHeight)
     }
     else if (direction == LEFT)
     {
-        setPosX(getPosX() - pixels);
+        setPosX(getPosX() - distance);
+        
         if (getPosX() < 0)
         {
             direction = RIGHT;

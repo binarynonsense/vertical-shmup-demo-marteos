@@ -31,22 +31,19 @@
 #include "img/effects.h"
 #include "img/weapons.h"
 
-CGame :: CGame(){
-
-    period = 1.0/30.0;
-    //period_ts = double_to_timespec(period);  //old versions of MaRTE OS
-    double_to_timespec(period, &period_ts); //new versions of MaRTE OS
-    
+CGame :: CGame()
+{
 //     //make getchar() non-blocking:
 //     reset_blocking_mode ();
 //     set_raw_mode ();
-    init_keyboard();
+    init_keyboard(); // using my own keyboard 'driver'
     
     ////init vga////
     screenWidth = 320;
     screenHeight = 200;
     int ret = init_vga(G320x200x256, VGA, PCI_DEVICE_ID_S3_TRIO64V2);
     assert (ret == 0); 
+    
     backBuffer = (unsigned char *)malloc(screenWidth * screenHeight);//virtual canvas
     memset(backBuffer, 0, screenWidth * screenHeight);
     ////////////////
@@ -54,7 +51,11 @@ CGame :: CGame(){
     initSprites();
     initPalette();
             
-    gameOver = 0;        
+    gameOver = 0; 
+    
+    ///////////////////
+        
+    clock_gettime(CLOCK_REALTIME, &timeLastFrame);
 }
 
 void CGame :: initSprites()
@@ -134,7 +135,8 @@ void CGame :: drawBackground()
     }  
 }
 
-void CGame :: checkInput(){
+void CGame :: checkInput()
+{
     //keyboard
 //     char key;
 //     int keyPressed[5]={0,0,0,0,0};//8,2,4,6,space,
@@ -163,25 +165,28 @@ void CGame :: checkInput(){
 //         } 
 //     }
     
-    int incVelocity = 8;
+    int incVelocity = 50;
     
-    if ((pressedKeys[17] || pressedKeys[72]) && (player->getPosY()>0))
+    if ((pressedKeys[17] || pressedKeys[72]) && (player->getPosY() > 0)) // up
     {
-        player->setPosY(player->getPosY()-incVelocity);
+        player->setPosY(player->getPosY() - incVelocity * deltaTime);
     }
-    else if ((pressedKeys[31] || pressedKeys[80]) && (player->getPosY()<screenHeight-player->frames[0].height)  ){//mal
-        player->setPosY(player->getPosY()+incVelocity);
-    }
-    
-    if ((pressedKeys[30] || pressedKeys[75]) && (player->getPosX()>0))
-    {
-        player->setPosX(player->getPosX()-incVelocity);
-    }else if ((pressedKeys[32] || pressedKeys[77]) && (player->getPosX()<screenWidth-player->frames[0].width) )
-    {
-        player->setPosX(player->getPosX()+incVelocity);
+    else if ((pressedKeys[31] || pressedKeys[80]) && (player->getPosY()<screenHeight - player->frames[0].height) ) // down
+    {//mal
+        player->setPosY(player->getPosY() + incVelocity * deltaTime);
     }
     
-    if ((pressedKeys[28] || pressedKeys[57])){
+    if ((pressedKeys[30] || pressedKeys[75]) && (player->getPosX() > 0)) // left
+    {
+        player->setPosX(player->getPosX() - incVelocity * deltaTime);
+    }
+    else if ((pressedKeys[32] || pressedKeys[77]) && (player->getPosX() < screenWidth - player->frames[0].width) ) // right
+    {
+        player->setPosX(player->getPosX() + incVelocity * deltaTime);
+    }
+    
+    if ((pressedKeys[28] || pressedKeys[57])) // fire
+    {
         player->shotMissile();
     } 
 
@@ -198,24 +203,34 @@ int CGame :: gameLoop()
 {
     while(!gameOver)
     {        
+        clock_gettime(CLOCK_REALTIME, &timeCurrentFrame);
+        deltaTime = TimespecDiff(timeLastFrame, timeCurrentFrame);
+        // UPDATE FRAME /////////////////////////////////////////////
+        
         int i, j;        
         
         /////COLLISIONS///////////
-        for (i=0;i<maxEnemiesSimple;i++){
-            if(enemiesSimple[i]->state==ACTIVE){                
+        
+        for (i = 0; i < maxEnemiesSimple; i++)
+        {
+            if(enemiesSimple[i]->state == ACTIVE)
+            {                
                 //enemy-player colission
-                if (enemiesSimple[i]->collision(player) == 1) {
+                if (enemiesSimple[i]->collision(player) == 1) 
+                {
                     //gameOver=1;
-                    enemiesSimple[i]->state=EXPLODING;
-                    player->state=EXPLODING;
+                    enemiesSimple[i]->state = EXPLODING;
+                    player->state = EXPLODING;
                 }
                 //enemy-missile collision
-                for (j=0;j<player->maxMissiles;j++) {
-                
-                    if (player->missiles[j].state==ACTIVE) {
-                        if (enemiesSimple[i]->collision(&player->missiles[j]) == 1) {
-                            enemiesSimple[i]->state=EXPLODING;
-                            player->missiles[j].state=FREE;
+                for (j=  0;j < player-> maxMissiles; j++) 
+                {                
+                    if (player->missiles[j].state == ACTIVE) 
+                    {
+                        if (enemiesSimple[i]->collision(&player->missiles[j]) == 1) 
+                        {
+                            enemiesSimple[i]->state = EXPLODING;
+                            player->missiles[j].state = FREE;
                         }
                     }
                 }
@@ -229,7 +244,7 @@ int CGame :: gameLoop()
         {            
             if (player->missiles[i].state == ACTIVE) 
             {                
-                player->missiles[i].setPosY(player->missiles[i].getPosY() - 5);
+                player->missiles[i].setPosY(player->missiles[i].getPosY() - 50  * deltaTime);
                 
                 if (player->missiles[i].getPosY() < 0 - 15) 
                 {
@@ -243,7 +258,7 @@ int CGame :: gameLoop()
         {
             if(enemiesSimple[i]->state != FREE)
             {
-                enemiesSimple[i]->move(4, screenWidth, screenHeight);
+                enemiesSimple[i]->move(50 * deltaTime, screenWidth, screenHeight);
             }
         }
         
@@ -269,16 +284,23 @@ int CGame :: gameLoop()
         {
             if(enemiesSimple[i]->state != FREE)
             {
-                enemiesSimple[i]->draw(backBuffer, screenWidth);    
+                enemiesSimple[i]->draw(backBuffer, screenWidth, deltaTime);    
             }
         }
         
         blit();
         
-        ////WAIT  FOR NEXT FRAME////////////////
-        nanosleep(&period_ts, NULL);
+        // END UPDATE FRAME /////////////////////////////////////////    
+        timeLastFrame = timeCurrentFrame; 
     }
     return 0;
+}
+
+double CGame :: TimespecDiff(struct timespec start, struct timespec end)
+{
+  double startSecs = start.tv_sec + start.tv_nsec / 1000000000.0;
+  double endSecs = end.tv_sec + end.tv_nsec / 1000000000.0;
+  return endSecs - startSecs;
 }
 
 void CGame :: initPalette(){ 

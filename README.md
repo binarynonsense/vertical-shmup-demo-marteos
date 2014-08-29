@@ -3,6 +3,8 @@ Vertical Shmup Demo for MaRTE OS
 
 Just a test demo of one ship that can shoot a couple enemies.
 
+Controls: wasd + space
+
 Video: https://www.youtube.com/watch?v=ZtYMXZ5JOas
 
 ---------------------------

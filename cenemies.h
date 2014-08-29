@@ -38,7 +38,7 @@ class CEnemySimple : public CShip
     public:
         
         CEnemySimple(int nFrames, int nExplosionFrames);
-        void move(int pixels, int screenWidth, int screenHeight); 
+        void move(float distance, int screenWidth, int screenHeight); 
 };
 
 #endif

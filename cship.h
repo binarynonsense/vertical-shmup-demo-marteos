@@ -44,6 +44,7 @@ class CShip : public CSprite
         CFrame *explosionFrames;
         int numExplosionFrames;
         int actualExplosionFrame;
+        float timeSinceExplosionFrameChange;
         
         int maxMissiles;
         CSprite *missiles;        
@@ -51,7 +52,7 @@ class CShip : public CSprite
         CShip();
         CShip(int nFrames, int nExplosionFrames);
         
-        void draw(unsigned char *buffer, int screenWidth);
+        void draw(unsigned char *buffer, int screenWidth, float deltaTime = 0);
         void shotMissile();
 };
 

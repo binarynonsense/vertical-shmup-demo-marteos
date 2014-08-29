@@ -32,7 +32,9 @@ CShip :: CShip()
     actualExplosionFrame=0;
     explosionFrames=new CFrame[numExplosionFrames];
     maxMissiles=10;
-    missiles=new CSprite[maxMissiles];         
+    missiles=new CSprite[maxMissiles];  
+    
+    timeSinceExplosionFrameChange = 0;
 }
 
 CShip :: CShip(int nFrames, int nExplosionFrames) : CSprite(nFrames)
@@ -41,22 +43,35 @@ CShip :: CShip(int nFrames, int nExplosionFrames) : CSprite(nFrames)
     actualExplosionFrame=0;
     explosionFrames=new CFrame[numExplosionFrames];
     maxMissiles=10;
-    missiles=new CSprite[maxMissiles];         
+    missiles=new CSprite[maxMissiles];  
+    
+    timeSinceExplosionFrameChange = 0;
 }
 
-void CShip :: draw(unsigned char *buffer, int screenWidth)
+void CShip :: draw(unsigned char *buffer, int screenWidth, float deltaTime)
 {
     if(state == ACTIVE)
     {
+        timeSinceExplosionFrameChange = 0;
+        
         CSprite::draw(&frames[actualFrame], buffer,screenWidth);
         //CSprite::draw(&explosionFrames[actualExplosionFrame], buffer,screenWidth);
     }
     else if(state == EXPLODING)
     {
+        if(timeSinceExplosionFrameChange > 0.1f)
+        {
+            timeSinceExplosionFrameChange = 0;
+            actualExplosionFrame++;
+        }
+        else
+        {
+            timeSinceExplosionFrameChange += deltaTime;
+        }
+        
         if(actualExplosionFrame < numExplosionFrames)
         {
-            CSprite::draw(&explosionFrames[actualExplosionFrame], buffer,screenWidth);
-            actualExplosionFrame++;
+            CSprite::draw(&explosionFrames[actualExplosionFrame], buffer,screenWidth);            
             
         }
         else

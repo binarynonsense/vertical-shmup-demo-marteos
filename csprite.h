@@ -42,7 +42,7 @@ class CSprite
 {
     private:
         
-        int posX,posY;
+        float posX, posY;
         int numFrames;  
         
     public:   
@@ -58,15 +58,15 @@ class CSprite
         states state;
         directions direction;
         int actualFrame;
-        int getPosX(){return posX;};
-        int getPosY(){return posY;};
-        void setPosX(int x){ posX = x;};
-        void setPosY(int y){ posY = y;};
+        float getPosX(){return posX;};
+        float getPosY(){return posY;};
+        void setPosX(float x){ posX = x;};
+        void setPosY(float y){ posY = y;};
         int getWidth ();
         int getHeight ();
         
         void checkForMovement();
-        void draw (unsigned char *buffer, int screenWidth);
+        void draw (unsigned char *buffer, int screenWidth, float deltaTime = 0);
         virtual void draw(CFrame *frame, unsigned char *buffer, int screenWidth);
         int collision(CSprite *otherSprite);
 };

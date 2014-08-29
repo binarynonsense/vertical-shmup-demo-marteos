@@ -60,7 +60,11 @@ class CGame
         void initSprites();
         void initPalette();
 
-    public:        
+    public:    
+        
+        double deltaTime;
+        struct timespec timeLastFrame, timeCurrentFrame;
+        double TimespecDiff(struct timespec start, struct timespec end);
         
         CGame();
         unsigned char *backBuffer;
