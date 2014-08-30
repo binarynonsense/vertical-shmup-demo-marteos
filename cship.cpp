@@ -1,14 +1,13 @@
 /*---------------------------------------------------------------------------
---                          Vertical Shump Demo                            -- 
+--                          Vertical Shmup Demo                            -- 
 -----------------------------------------------------------------------------
 --                                                                         --
 --  This is an example demo for MaRTE OS.                                  --
 --                                                                         --
 --  author:   Alvaro Garcia Cuesta                                         --
---  email:    alvaro@binarynonsense.com                                    --
 --  website:  www.binarynonsense.com                                       --
 --                                                                         --
---  file: chip.cpp                                                         --
+--  file: cship.cpp                                                        --
 --                                                                         --
 --  this file contains [...]                                               --
 -----------------------------------------------------------------------------
